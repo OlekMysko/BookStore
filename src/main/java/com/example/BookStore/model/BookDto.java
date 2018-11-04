@@ -1,10 +1,11 @@
-package com.example.BookStore.controller;
+package com.example.BookStore.model;
 
 
-import com.example.BookStore.model.Book;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true )
 public class BookDto {
@@ -17,7 +18,7 @@ public class BookDto {
     public BookDto(
             @JsonProperty("id") String id,
             @JsonProperty("title") String title,
-            @JsonProperty ("authorName") String author) {
+            @JsonProperty ("author") String author) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -27,7 +28,20 @@ public class BookDto {
         return  new BookDto(book.getId(), book.getTitle(), book.getAuthor());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookDto bookDto = (BookDto) o;
+        return Objects.equals(id, bookDto.id) &&
+                Objects.equals(title, bookDto.title) &&
+                Objects.equals(author, bookDto.author);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author);
+    }
 
     public String getId() {
         return id;

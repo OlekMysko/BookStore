@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Component
 public class BookRepositoryImpl implements BookRepository {
@@ -17,8 +18,9 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
-        books.add(prepare(book));
-        return book;
+        Book prepareBook = prepare(book);
+        books.add(prepare(prepareBook));
+        return prepareBook;
     }
 
     private Book prepare(Book book) {
@@ -30,12 +32,12 @@ public class BookRepositoryImpl implements BookRepository {
                     book.getAuthor(),
                     book.getAuthor());}
    */
-    return Optional.ofNullable(book.getId())
-            .map(id -> book)
-            .orElse(new Book(
-                    String.valueOf(currentId.incrementAndGet()),
-                    book.getAuthor(),
-                    book.getTitle()));
+        return Optional.ofNullable(book.getId())
+                .map(id -> book)
+                .orElse(new Book(
+                        String.valueOf(currentId.incrementAndGet()),
+                        book.getTitle(),
+                        book.getAuthor()));
 
     }
 
@@ -45,8 +47,37 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public List<Book> findByAuthorStartsWith(String author) {
+        return books.stream()
+                .filter(book -> book
+                        .getAuthor()
+                        .toLowerCase()
+                        .startsWith(author.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Book> findByTitleStartsWith(String title) {
+        return books.stream()
+                .filter(book -> book
+                        .getTitle()
+                        .toLowerCase()
+                        .startsWith(title.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void deleteAll() {
         books.clear();
+    }
+
+    @Override
+    public void delete(Book book) {
+        books.remove(book);
+    }
+
+    public void deleteById(String id) {
+        findById(id).ifPresent(book -> books.remove(book));
     }
 
     @Override
